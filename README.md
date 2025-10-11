@@ -88,7 +88,3 @@ MIT
 ## Credits
 
 Project by Shivansh Alwadhi
-
-
-### 2. Raspberry Pi
-- Install Python 3, pip packages:
