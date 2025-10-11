@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuardSense - Smart Home Security</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent: #06b6d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert {
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            animation: alertPulse 2s infinite;
+        }
+
+        @keyframes alertPulse {
+            0% { background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%); }
+            50% { background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%); }
+            100% { background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%); }
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--dark);
+            position: relative;
+            padding-bottom: 100px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .app-container {
+            background: #450a0a;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border-radius: 0 0 2rem 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .header {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success), var(--accent), var(--warning));
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .header::before {
+            background: linear-gradient(90deg, #ef4444, #f87171, #fca5a5);
+            animation: headerAlert 1s infinite;
+        }
+
+        @keyframes headerAlert {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .logo-icon {
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .status-badge {
+            background: rgba(220, 38, 38, 0.3);
+            color: #fecaca;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        body.intrusion-alert .status-dot {
+            background: #ef4444;
+            animation: dangerPulse 0.5s infinite;
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem 1rem;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.5s ease;
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-banner.show {
+            display: flex;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            animation: bellRing 1s infinite;
+        }
+
+        @keyframes bellRing {
+            0%, 50%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .alert-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .alert-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* System Card */
+        .system-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .system-card {
+            background: #7f1d1d;
+            border-color: #ef4444;
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
+        }
+
+        .system-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .system-card::before {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            animation: borderAlert 1s infinite;
+        }
+
+        @keyframes borderAlert {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .status-icon {
+            font-size: 3rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .status-icon {
+            animation: iconPulse 1s infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .status-text {
+            text-align: right;
+        }
+
+        .system-state {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .system-state {
+            color: #fecaca;
+        }
+
+        .last-update {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        body.intrusion-alert .last-update {
+            color: #fca5a5;
+        }
+
+        .power-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .power-info {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .battery-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .battery-icon {
+            font-size: 1.5rem;
+            color: var(--success);
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .battery-icon {
+            color: #f87171;
+            animation: batteryAlert 2s infinite;
+        }
+
+        @keyframes batteryAlert {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .battery-text {
+            font-size: 0.875rem;
+        }
+
+        .battery-percent {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .power-source {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        body.intrusion-alert .power-source {
+            color: #fca5a5;
+        }
+
+        .control-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-button:active {
+            transform: translateY(2px);
+        }
+
+        .arm-button {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .disarm-button {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        /* Sensors Grid */
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .sensor-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.intrusion-alert .sensor-card {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+
+        .sensor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--success);
+            transition: all 0.3s ease;
+        }
+
+        .sensor-card.active::before {
+            background: var(--warning);
+        }
+
+        body.intrusion-alert .sensor-card.active::before {
+            background: #ef4444;
+            animation: sensorAlert 0.5s infinite;
+        }
+
+        @keyframes sensorAlert {
+            0%, 100% { background: #ef4444; }
+            50% { background: #f87171; }
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        body.intrusion-alert .sensor-card:hover {
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        .sensor-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .sensor-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .sensor-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .sensor-card.active .status-indicator {
+            background: var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+
+        body.intrusion-alert .sensor-card.active .status-indicator {
+            background: #ef4444;
+            animation: dangerPulse 0.5s infinite;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 0.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--card-border);
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .tabs-container {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 0.25rem;
+        }
+
+        body.intrusion-alert .tabs {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        body.intrusion-alert .tab.active {
+            background: #ef4444;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .tab-badge {
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Family Members */
+        .family-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .section-icon {
+            color: var(--primary);
+        }
+
+        body.intrusion-alert .section-icon {
+            color: #ef4444;
+        }
+
+        .family-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .family-member {
+            background: var(--card-bg);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.intrusion-alert .family-member {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+
+        .family-member::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        body.intrusion-alert .family-member::before {
+            background: #ef4444;
+        }
+
+        .family-member:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        body.intrusion-alert .family-member:hover {
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            flex-shrink: 0;
+        }
+
+        body.intrusion-alert .member-avatar {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .member-details {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        body.intrusion-alert .member-details {
+            color: #fca5a5;
+        }
+
+        .member-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-online {
+            background: var(--success);
+        }
+
+        .status-offline {
+            background: var(--text-secondary);
+        }
+
+        body.intrusion-alert .status-offline {
+            background: #fca5a5;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        body.intrusion-alert .action-btn:hover {
+            background: #ef4444;
+        }
+
+        /* Solar Panel */
+        .solar-panel {
+            background: var(--card-bg);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.intrusion-alert .solar-panel {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+
+        .solar-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+        }
+
+        body.intrusion-alert .solar-panel::before {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .solar-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .solar-icon {
+            font-size: 1.5rem;
+            color: var(--warning);
+        }
+
+        body.intrusion-alert .solar-icon {
+            color: #f87171;
+        }
+
+        .solar-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .solar-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .solar-stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        body.intrusion-alert .stat-label {
+            color: #fca5a5;
+        }
+
+        .solar-progress {
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+            border-radius: 4px;
+            width: 65%;
+        }
+
+        body.intrusion-alert .progress-fill {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .avatar-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .icon-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .icon-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .icon-option:hover {
+            transform: scale(1.1);
+        }
+
+        .icon-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Simulation Controls */
+        .simulation-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-top: 1px solid var(--card-border);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.5s ease;
+        }
+
+        body.intrusion-alert .simulation-controls {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+
+        .sim-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        body.intrusion-alert .sim-title {
+            color: #fca5a5;
+        }
+
+        .sim-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .sim-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sim-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        body.intrusion-alert .sim-btn:hover {
+            background: #ef4444;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .sensors-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+            
+            .sensor-card {
+                padding: 1rem;
+            }
+            
+            .family-member {
+                padding: 1rem;
+            }
+            
+            .member-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Alert Banner -->
+        <div class="alert-banner" id="alertBanner">
+            <div class="alert-icon">🚨</div>
+            <div class="alert-content">
+                <div class="alert-title" id="alertTitle">INTRUSION DETECTED!</div>
+                <div class="alert-message" id="alertMessage">Multiple sensors triggered. Immediate action required.</div>
+            </div>
+            <button class="alert-close" onclick="dismissAlert()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">GuardSense</div>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span id="statusText">All Systems Operational</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- System Status Card -->
+            <div class="system-card">
+                <div class="system-status">
+                    <div class="status-icon">🏠</div>
+                    <div class="status-text">
+                        <div class="system-state" id="systemState">ARMED</div>
+                        <div class="last-update" id="lastUpdate">Last updated: Just now</div>
+                    </div>
+                </div>
+                
+                <div class="power-info">
+                    <div class="battery-info">
+                        <div class="battery-icon">🔋</div>
+                        <div class="battery-text">
+                            <div class="battery-percent" id="batteryPercent">92%</div>
+                            <div>Battery Level</div>
+                        </div>
+                    </div>
+                    <div class="power-source">
+                        <i class="fas fa-solar-panel"></i>
+                        <span>Solar Charging</span>
+                    </div>
+                </div>
+                
+                <button class="control-button disarm-button" id="controlButton" onclick="toggleSystem()">
+                    <i class="fas fa-lock-open"></i> DISARM SYSTEM
+                </button>
+            </div>
+
+            <!-- Sensors Grid -->
+            <div class="sensors-grid">
+                <div class="sensor-card" id="motionSensor">
+                    <div class="sensor-icon">👁️</div>
+                    <div class="sensor-name">Motion</div>
+                    <div class="sensor-status">
+                        <div class="status-indicator"></div>
+                        <span id="motionStatus">Normal</span>
+                    </div>
+                </div>
+                <div class="sensor-card" id="soundSensor">
+                    <div class="sensor-icon">🔊</div>
+                    <div class="sensor-name">Sound</div>
+                    <div class="sensor-status">
+                        <div class="status-indicator"></div>
+                        <span id="soundStatus">Normal</span>
+                    </div>
+                </div>
+                <div class="sensor-card" id="vibrationSensor">
+                    <div class="sensor-icon">📳</div>
+                    <div class="sensor-name">Vibration</div>
+                    <div class="sensor-status">
+                        <div class="status-indicator"></div>
+                        <span id="vibrationStatus">Normal</span>
+                    </div>
+                </div>
+                <div class="sensor-card" id="irSensor">
+                    <div class="sensor-icon">🔥</div>
+                    <div class="sensor-name">IR Heat</div>
+                    <div class="sensor-status">
+                        <div class="status-indicator"></div>
+                        <span id="irStatus">Normal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solar Panel -->
+            <div class="solar-panel">
+                <div class="solar-header">
+                    <div class="solar-icon">☀️</div>
+                    <div class="solar-title">Solar Panel</div>
+                </div>
+                <div class="solar-stats">
+                    <div class="solar-stat">
+                        <div class="stat-value">65%</div>
+                        <div class="stat-label">Efficiency</div>
+                    </div>
+                    <div class="solar-stat">
+                        <div class="stat-value">320W</div>
+                        <div class="stat-label">Current Output</div>
+                    </div>
+                </div>
+                <div class="solar-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('family')">
+                        <i class="fas fa-users"></i> Family
+                    </button>
+                    <button class="tab" onclick="switchTab('alerts')" id="alertsTab">
+                        <i class="fas fa-bell"></i> Alerts
+                        <span class="tab-badge" id="alertBadge" style="display: none;">3</span>
+                    </button>
+                    <button class="tab" onclick="switchTab('modules')">
+                        <i class="fas fa-puzzle-piece"></i> Modules
+                    </button>
+                </div>
+
+                <!-- Family Tab -->
+                <div id="familyTab" class="tab-content active">
+                    <div class="family-section">
+                        <div class="section-title">
+                            <i class="fas fa-users section-icon"></i>
+                            <span>Family Members</span>
+                        </div>
+                        <div class="family-grid" id="familyMembersList">
+                            <!-- Family members will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <button class="control-button" onclick="showAddMemberModal()" style="background: var(--primary);">
+                        <i class="fas fa-user-plus"></i> Add Family Member
+                    </button>
+                </div>
+
+                <!-- Alerts Tab -->
+                <div id="alertsTabContent" class="tab-content">
+                    <div class="family-section">
+                        <div class="section-title">
+                            <i class="fas fa-bell section-icon"></i>
+                            <span>Security Alerts</span>
+                        </div>
+                        <div id="alertsList">
+                            <!-- Alerts will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modules Tab -->
+                <div id="modulesTab" class="tab-content">
+                    <div class="family-section">
+                        <div class="section-title">
+                            <i class="fas fa-puzzle-piece section-icon"></i>
+                            <span>Security Modules</span>
+                        </div>
+                        <div class="sensors-grid" id="modulesList">
+                            <!-- Default modules -->
+                            <div class="sensor-card">
+                                <div class="sensor-icon"><i class="fas fa-fire"></i></div>
+                                <div class="sensor-name">Smoke Detector</div>
+                                <div class="sensor-status">
+                                    <div class="status-indicator"></div>
+                                    <span>Active</span>
+                                </div>
+                            </div>
+                            <div class="sensor-card">
+                                <div class="sensor-icon"><i class="fas fa-tint"></i></div>
+                                <div class="sensor-name">Water Leak</div>
+                                <div class="sensor-status">
+                                    <div class="status-indicator"></div>
+                                    <span>Dry</span>
+                                </div>
+                            </div>
+                            <div class="sensor-card">
+                                <div class="sensor-icon"><i class="fas fa-plug"></i></div>
+                                <div class="sensor-name">Power Monitor</div>
+                                <div class="sensor-status">
+                                    <div class="status-indicator"></div>
+                                    <span>Normal</span>
+                                </div>
+                            </div>
+                            <div class="sensor-card">
+                                <div class="sensor-icon"><i class="fas fa-wind"></i></div>
+                                <div class="sensor-name">Air Quality</div>
+                                <div class="sensor-status">
+                                    <div class="status-indicator"></div>
+                                    <span>Good</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="control-button" onclick="showAddModuleModal()" style="background: var(--primary); margin-top: 1rem;">
+                            <i class="fas fa-plus"></i> Add New Module
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="simulation-controls">
+            <div class="sim-title">Simulation Controls</div>
+            <div class="sim-buttons">
+                <button class="sim-btn" onclick="simulateIntrusion()">
+                    <i class="fas fa-bolt"></i> Intrusion
+                </button>
+                <button class="sim-btn" onclick="simulateSensorAlert('motion')">
+                    <i class="fas fa-running"></i> Motion
+                </button>
+                <button class="sim-btn" onclick="simulateSensorAlert('sound')">
+                    <i class="fas fa-volume-up"></i> Sound
+                </button>
+                <button class="sim-btn" onclick="simulateLowBattery()">
+                    <i class="fas fa-battery-quarter"></i> Low Battery
+                </button>
+                <button class="sim-btn" onclick="simulateFaceRecognition()">
+                    <i class="fas fa-user-check"></i> Face ID
+                </button>
+                <button class="sim-btn" onclick="resetSimulation()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Add/Edit Family Member Modal -->
+        <div class="modal" id="memberModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle">Add Family Member</div>
+                    <button class="close-btn" onclick="closeMemberModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="memberName" placeholder="Enter family member name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Avatar</label>
+                    <div class="avatar-options">
+                        <div class="avatar-option" onclick="selectAvatar('👨')">👨</div>
+                        <div class="avatar-option" onclick="selectAvatar('👩')">👩</div>
+                        <div class="avatar-option" onclick="selectAvatar('👦')">👦</div>
+                        <div class="avatar-option" onclick="selectAvatar('👧')">👧</div>
+                        <div class="avatar-option" onclick="selectAvatar('🧓')">🧓</div>
+                        <div class="avatar-option" onclick="selectAvatar('👶')">👶</div>
+                        <div class="avatar-option" onclick="selectAvatar('🦸')">🦸</div>
+                        <div class="avatar-option" onclick="selectAvatar('🦹')">🦹</div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeMemberModal()">Cancel</button>
+                    <button class="modal-btn modal-btn-primary" onclick="saveFamilyMember()">Save Member</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Module Modal -->
+        <div class="modal" id="moduleModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="moduleModalTitle">Add Security Module</div>
+                    <button class="close-btn" onclick="closeModuleModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Module Name</label>
+                    <input type="text" class="form-input" id="moduleName" placeholder="Enter module name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Icon</label>
+                    <div class="icon-options">
+                        <div class="icon-option" onclick="selectIcon('fa-fire')"><i class="fas fa-fire"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-tint')"><i class="fas fa-tint"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-plug')"><i class="fas fa-plug"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-wind')"><i class="fas fa-wind"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-shield-alt')"><i class="fas fa-shield-alt"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-camera')"><i class="fas fa-camera"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-door-closed')"><i class="fas fa-door-closed"></i></div>
+                        <div class="icon-option" onclick="selectIcon('fa-lightbulb')"><i class="fas fa-lightbulb"></i></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-input" id="moduleStatus">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeModuleModal()">Cancel</button>
+                    <button class="modal-btn modal-btn-primary" onclick="saveSecurityModule()">Save Module</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let appState = {
+            systemArmed: true,
+            sensors: {
+                motion: { active: false, status: 'normal' },
+                sound: { active: false, status: 'normal' },
+                vibration: { active: false, status: 'normal' },
+                ir: { active: false, status: 'normal' }
+            },
+            batteryLevel: 92,
+            unreadAlerts: 3,
+            familyMembers: [
+                {
+                    id: 1,
+                    name: "DEVRAJ SINGH",
+                    avatar: "👨",
+                    faceRegistered: true,
+                    lastAccess: "2 hours ago"
+                },
+                {
+                    id: 2,
+                    name: "VAIBHAW SINGH", 
+                    avatar: "👦",
+                    faceRegistered: true,
+                    lastAccess: "30 minutes ago"
+                },
+                {
+                    id: 3,
+                    name: "SHIVANSH ALWADHI",
+                    avatar: "🦸",
+                    faceRegistered: false,
+                    lastAccess: "Never"
+                }
+            ],
+            securityModules: [
+                {
+                    id: 1,
+                    name: "Smoke Detector",
+                    icon: "fa-fire",
+                    status: "active"
+                },
+                {
+                    id: 2,
+                    name: "Water Leak",
+                    icon: "fa-tint",
+                    status: "active"
+                },
+                {
+                    id: 3,
+                    name: "Power Monitor",
+                    icon: "fa-plug",
+                    status: "active"
+                },
+                {
+                    id: 4,
+                    name: "Air Quality",
+                    icon: "fa-wind",
+                    status: "active"
+                }
+            ],
+            alerts: [
+                "Motion detected in living room - 10:25 AM",
+                "Front door opened - 09:45 AM", 
+                "System armed - 08:30 AM"
+            ],
+            editingMember: null,
+            editingModule: null,
+            selectedAvatar: '👨',
+            selectedIcon: 'fa-fire',
+            intrusionActive: false
+        };
+
+        // Initialize the app
+        function initApp() {
+            updateUI();
+            updateFamilyMembersUI();
+            updateAlertsUI();
+            updateModulesUI();
+        }
+
+        // Update UI based on current state
+        function updateUI() {
+            // System status
+            const systemState = document.getElementById('systemState');
+            const controlButton = document.getElementById('controlButton');
+            const batteryPercent = document.getElementById('batteryPercent');
+            const statusText = document.getElementById('statusText');
+
+            if (appState.systemArmed) {
+                systemState.textContent = 'ARMED';
+                systemState.style.color = 'var(--danger)';
+                controlButton.innerHTML = '<i class="fas fa-lock-open"></i> DISARM SYSTEM';
+                controlButton.className = 'control-button disarm-button';
+            } else {
+                systemState.textContent = 'DISARMED';
+                systemState.style.color = 'var(--success)';
+                controlButton.innerHTML = '<i class="fas fa-lock"></i> ARM SYSTEM';
+                controlButton.className = 'control-button arm-button';
+            }
+
+            batteryPercent.textContent = `${appState.batteryLevel}%`;
+
+            // Update intrusion status
+            if (appState.intrusionActive) {
+                document.body.classList.add('intrusion-alert');
+                statusText.textContent = 'INTRUSION DETECTED!';
+            } else {
+                document.body.classList.remove('intrusion-alert');
+                statusText.textContent = 'All Systems Operational';
+            }
+
+            // Update sensor status
+            updateSensorUI();
+            
+            // Update alert badge
+            updateAlertBadge();
+        }
+
+        function updateSensorUI() {
+            Object.keys(appState.sensors).forEach(sensor => {
+                const element = document.getElementById(sensor + 'Sensor');
+                const statusElement = document.getElementById(sensor + 'Status');
+                
+                if (appState.sensors[sensor].active) {
+                    element.classList.add('active');
+                    statusElement.textContent = 'Active';
+                } else {
+                    element.classList.remove('active');
+                    statusElement.textContent = 'Normal';
+                }
+            });
+        }
+
+        function updateAlertBadge() {
+            const alertBadge = document.getElementById('alertBadge');
+            if (appState.unreadAlerts > 0) {
+                alertBadge.style.display = 'flex';
+                alertBadge.textContent = appState.unreadAlerts;
+            } else {
+                alertBadge.style.display = 'none';
+            }
+        }
+
+        function updateFamilyMembersUI() {
+            const familyMembersList = document.getElementById('familyMembersList');
+            familyMembersList.innerHTML = '';
+            
+            appState.familyMembers.forEach(member => {
+                const memberElement = document.createElement('div');
+                memberElement.className = 'family-member';
+                
+                memberElement.innerHTML = `
+                    <div class="member-avatar">${member.avatar}</div>
+                    <div class="member-info">
+                        <div class="member-name">${member.name}</div>
+                        <div class="member-details">
+                            <span>Face ID: ${member.faceRegistered ? 'Registered' : 'Not Registered'}</span>
+                            <span>Last: ${member.lastAccess}</span>
+                        </div>
+                        <div class="member-status">
+                            <div class="status-dot ${member.faceRegistered ? 'status-online' : 'status-offline'}"></div>
+                            <span>${member.faceRegistered ? 'Active' : 'Inactive'}</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn" onclick="editFamilyMember(${member.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn" onclick="removeFamilyMember(${member.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                familyMembersList.appendChild(memberElement);
+            });
+        }
+
+        function updateModulesUI() {
+            const modulesList = document.getElementById('modulesList');
+            modulesList.innerHTML = '';
+            
+            appState.securityModules.forEach(module => {
+                const moduleElement = document.createElement('div');
+                moduleElement.className = 'sensor-card';
+                
+                moduleElement.innerHTML = `
+                    <div class="sensor-icon"><i class="fas ${module.icon}"></i></div>
+                    <div class="sensor-name">${module.name}</div>
+                    <div class="sensor-status">
+                        <div class="status-indicator"></div>
+                        <span>${module.status.charAt(0).toUpperCase() + module.status.slice(1)}</span>
+                    </div>
+                    <div class="member-actions" style="position: absolute; top: 10px; right: 10px;">
+                        <button class="action-btn" onclick="editSecurityModule(${module.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn" onclick="removeSecurityModule(${module.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                modulesList.appendChild(moduleElement);
+            });
+        }
+
+        function updateAlertsUI() {
+            const alertsList = document.getElementById('alertsList');
+            alertsList.innerHTML = '';
+            
+            appState.alerts.forEach(alert => {
+                const alertElement = document.createElement('div');
+                alertElement.className = 'family-member';
+                alertElement.innerHTML = `
+                    <div class="member-avatar">🚨</div>
+                    <div class="member-info">
+                        <div class="member-name">Security Alert</div>
+                        <div class="member-details">
+                            <span>${alert}</span>
+                        </div>
+                    </div>
+                `;
+                alertsList.appendChild(alertElement);
+            });
+        }
+
+        // Alert functions
+        function showAlert(title, message) {
+            const alertBanner = document.getElementById('alertBanner');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+            alertBanner.classList.add('show');
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (alertBanner.classList.contains('show')) {
+                    dismissAlert();
+                }
+            }, 10000);
+        }
+
+        function dismissAlert() {
+            const alertBanner = document.getElementById('alertBanner');
+            alertBanner.classList.remove('show');
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            document.getElementById(tabName + 'TabContent').classList.add('active');
+            
+            // If switching to alerts tab, mark alerts as read
+            if (tabName === 'alerts') {
+                appState.unreadAlerts = 0;
+                updateAlertBadge();
+            }
+        }
+
+        // System control
+        function toggleSystem() {
+            appState.systemArmed = !appState.systemArmed;
+            updateUI();
+            addAlert(`System ${appState.systemArmed ? 'armed' : 'disarmed'}`);
+        }
+
+        // Family member management
+        function showAddMemberModal() {
+            appState.editingMember = null;
+            document.getElementById('modalTitle').textContent = 'Add Family Member';
+            document.getElementById('memberName').value = '';
+            appState.selectedAvatar = '👨';
+            updateAvatarSelection();
+            document.getElementById('memberModal').style.display = 'flex';
+        }
+
+        function editFamilyMember(id) {
+            const member = appState.familyMembers.find(m => m.id === id);
+            if (member) {
+                appState.editingMember = member;
+                document.getElementById('modalTitle').textContent = 'Edit Family Member';
+                document.getElementById('memberName').value = member.name;
+                appState.selectedAvatar = member.avatar;
+                updateAvatarSelection();
+                document.getElementById('memberModal').style.display = 'flex';
+            }
+        }
+
+        function removeFamilyMember(id) {
+            if (confirm('Are you sure you want to remove this family member?')) {
+                appState.familyMembers = appState.familyMembers.filter(m => m.id !== id);
+                updateFamilyMembersUI();
+                addAlert('Family member removed');
+            }
+        }
+
+        function selectAvatar(avatar) {
+            appState.selectedAvatar = avatar;
+            updateAvatarSelection();
+        }
+
+        function updateAvatarSelection() {
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.textContent === appState.selectedAvatar) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        function saveFamilyMember() {
+            const name = document.getElementById('memberName').value.trim();
+            if (!name) {
+                alert('Please enter a name for the family member');
+                return;
+            }
+
+            if (appState.editingMember) {
+                // Update existing member
+                appState.editingMember.name = name;
+                appState.editingMember.avatar = appState.selectedAvatar;
+                addAlert(`Updated family member: ${name}`);
+            } else {
+                // Add new member
+                const newMember = {
+                    id: Date.now(),
+                    name: name,
+                    avatar: appState.selectedAvatar,
+                    faceRegistered: false,
+                    lastAccess: 'Never'
+                };
+                appState.familyMembers.push(newMember);
+                addAlert(`Added family member: ${name}`);
+            }
+
+            updateFamilyMembersUI();
+            closeMemberModal();
+        }
+
+        function closeMemberModal() {
+            document.getElementById('memberModal').style.display = 'none';
+        }
+
+        // Security module management
+        function showAddModuleModal() {
+            appState.editingModule = null;
+            document.getElementById('moduleModalTitle').textContent = 'Add Security Module';
+            document.getElementById('moduleName').value = '';
+            appState.selectedIcon = 'fa-fire';
+            updateIconSelection();
+            document.getElementById('moduleStatus').value = 'active';
+            document.getElementById('moduleModal').style.display = 'flex';
+        }
+
+        function editSecurityModule(id) {
+            const module = appState.securityModules.find(m => m.id === id);
+            if (module) {
+                appState.editingModule = module;
+                document.getElementById('moduleModalTitle').textContent = 'Edit Security Module';
+                document.getElementById('moduleName').value = module.name;
+                appState.selectedIcon = module.icon;
+                updateIconSelection();
+                document.getElementById('moduleStatus').value = module.status;
+                document.getElementById('moduleModal').style.display = 'flex';
+            }
+        }
+
+        function removeSecurityModule(id) {
+            if (confirm('Are you sure you want to remove this security module?')) {
+                appState.securityModules = appState.securityModules.filter(m => m.id !== id);
+                updateModulesUI();
+                addAlert('Security module removed');
+            }
+        }
+
+        function selectIcon(icon) {
+            appState.selectedIcon = icon;
+            updateIconSelection();
+        }
+
+        function updateIconSelection() {
+            document.querySelectorAll('.icon-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.querySelector('i').className.includes(appState.selectedIcon)) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        function saveSecurityModule() {
+            const name = document.getElementById('moduleName').value.trim();
+            if (!name) {
+                alert('Please enter a name for the security module');
+                return;
+            }
+
+            const status = document.getElementById('moduleStatus').value;
+
+            if (appState.editingModule) {
+                // Update existing module
+                appState.editingModule.name = name;
+                appState.editingModule.icon = appState.selectedIcon;
+                appState.editingModule.status = status;
+                addAlert(`Updated security module: ${name}`);
+            } else {
+                // Add new module
+                const newModule = {
+                    id: Date.now(),
+                    name: name,
+                    icon: appState.selectedIcon,
+                    status: status
+                };
+                appState.securityModules.push(newModule);
+                addAlert(`Added security module: ${name}`);
+            }
+
+            updateModulesUI();
+            closeModuleModal();
+        }
+
+        function closeModuleModal() {
+            document.getElementById('moduleModal').style.display = 'none';
+        }
+
+        // Alert system
+        function addAlert(message) {
+            appState.alerts.unshift(message);
+            if (appState.alerts.length > 5) {
+                appState.alerts.pop();
+            }
+            appState.unreadAlerts++;
+            updateAlertsUI();
+            updateAlertBadge();
+        }
+
+        // Simulation functions
+        function simulateIntrusion() {
+            if (!appState.systemArmed) {
+                alert('Cannot simulate intrusion - system is disarmed');
+                return;
+            }
+            
+            // Activate intrusion mode
+            appState.intrusionActive = true;
+            
+            // Show alert banner
+            showAlert('🚨 INTRUSION DETECTED!', 'Multiple sensors triggered. Immediate action required.');
+            
+            // Add to alerts
+            addAlert('🚨 INTRUSION DETECTED! Multiple sensors triggered');
+            
+            // Activate all sensors
+            Object.keys(appState.sensors).forEach(sensor => {
+                appState.sensors[sensor].active = true;
+            });
+            
+            updateUI();
+            
+            // Auto-reset after 15 seconds
+            setTimeout(() => {
+                if (appState.intrusionActive) {
+                    resetIntrusion();
+                }
+            }, 15000);
+        }
+
+        function resetIntrusion() {
+            appState.intrusionActive = false;
+            Object.keys(appState.sensors).forEach(sensor => {
+                appState.sensors[sensor].active = false;
+            });
+            updateUI();
+            dismissAlert();
+            addAlert('Intrusion alert cleared');
+        }
+
+        function simulateSensorAlert(sensor) {
+            if (!appState.systemArmed) {
+                alert(`Cannot trigger ${sensor} sensor - system is disarmed`);
+                return;
+            }
+            
+            appState.sensors[sensor].active = true;
+            addAlert(`${sensor.toUpperCase()} sensor activated`);
+            updateUI();
+            
+            // Auto reset after 5 seconds
+            setTimeout(() => {
+                appState.sensors[sensor].active = false;
+                updateUI();
+            }, 5000);
+        }
+
+        function simulateLowBattery() {
+            appState.batteryLevel = 15;
+            updateUI();
+            addAlert('Battery level critically low - please recharge');
+        }
+
+        function simulateFaceRecognition() {
+            const randomMember = appState.familyMembers[Math.floor(Math.random() * appState.familyMembers.length)];
+            addAlert(`Face recognized: ${randomMember.name}`);
+            
+            // Update member's last access
+            randomMember.lastAccess = 'Just now';
+            updateFamilyMembersUI();
+        }
+
+        function resetSimulation() {
+            appState.systemArmed = true;
+            appState.batteryLevel = 92;
+            appState.intrusionActive = false;
+            Object.keys(appState.sensors).forEach(sensor => {
+                appState.sensors[sensor].active = false;
+            });
+            appState.unreadAlerts = 3;
+            updateUI();
+            dismissAlert();
+            addAlert('Simulation reset');
+        }
+
+        // Initialize app when page loads
+        window.onload = initApp;
+    </script>
+</body>
+</html>
