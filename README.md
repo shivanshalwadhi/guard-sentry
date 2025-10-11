@@ -27,34 +27,23 @@ A modular, cloud-connected home alarm system built with an Arduino Uno (sensors,
 - Raspberry Pi (any model with USB, Python 3)
 - Optional: OV7670 camera (see modular instructions)
 
----
-
-## Wiring
-
-- Sensors to digital/analog pins as described in `main.ino`
-- LCD to A4 (SDA), A5 (SCL)
-- Buzzer/LED to D6/D7 (with 220Ω resistor)
-- Button for arming to D4 (active LOW)
-- Arduino TX (Serial) to Pi USB, GND shared
-
-
 
 ---
 
 ## Software
 
-**Arduino (`main.ino`)**
+**Arduino**
 - Reads sensor states
 - Armed/unarmed toggle
 - Sends sensor/alert status to Pi via Serial
 - LCD status/alerts
 
-**Raspberry Pi Python (`main.py`)**
+**Raspberry Pi Python**
 - Reads Arduino serial state
 - Updates Firebase Realtime Database
 - Logs intruder alerts
 
-**Firebase Cloud Function (`index.js`)**
+**Firebase Cloud Function **
 - Sends SMS texts to owner via Twilio when intruder detected
 - Can be extended for email/push/other alerts
 
