@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Leak - Email Investigation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="company-switcher">
+                <button class="company-btn active" data-company="apex">
+                    APEX Innovations
+                </button>
+                <button class="company-btn" data-company="nova">
+                    NOVA Technologies
+                </button>
+            </div>
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search emails..." 
+                    class="search-box"
+                >
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Inbox List -->
+            <div class="inbox-list">
+                <div class="inbox-header">
+                    <span class="header-subject">Subject</span>
+                    <span class="header-preview">Preview</span>
+                </div>
+                <div id="emailList" class="email-list">
+                    <!-- Emails will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Email Detail Pane -->
+            <div class="email-detail">
+                <div id="emailDetail" class="detail-content">
+                    <div class="empty-state">
+                        <p>Select an email to read</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
